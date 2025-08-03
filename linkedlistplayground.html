@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Linked List Tutorial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #0ea5e9;
+            /* sky-500 */
+            border-bottom-color: #0ea5e9;
+        }
+
+        .code-block {
+            background-color: #1e293b;
+            /* slate-800 */
+            color: #e2e8f0;
+            /* slate-200 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #334155;
+            /* slate-700 */
+            color: #94a3b8;
+            /* slate-400 */
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #475569;
+            /* slate-600 */
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Header and Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-slate-900">Linked List Tutorial</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#fundamentals" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Fundamentals</a>
+                <a href="#applications" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Applications</a>
+                <a href="#advanced" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Advanced</a>
+                <a href="#complexity" class="nav-link text-slate-600 border-b-2 border-transparent pb-1">Complexity</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+
+        <!-- Interactive Visualization Section -->
+        <section id="interactive" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4 text-slate-900">Interactive Playground</h2>
+            <p class="mb-6 text-slate-600">The best way to learn is by doing. Use this interactive playground to build and manipulate a linked list. Watch how the structure changes with each operation to gain an intuitive understanding of how pointers work.</p>
+
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Controls -->
+                    <div class="md:col-span-1 space-y-4">
+                        <h3 class="text-xl font-semibold">Controls</h3>
+                        <div>
+                            <label for="nodeValue" class="block text-sm font-medium text-slate-700">Node Value (1-99)</label>
+                            <input type="number" id="nodeValue" value="10" min="1" max="99" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="nodePosition" class="block text-sm font-medium text-slate-700">Position (for Insert/Delete)</label>
+                            <input type="number" id="nodePosition" value="0" min="0" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <button onclick="performOperation('insertHead')" class="w-full bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600 transition">Insert Head</button>
+                            <button onclick="performOperation('insertTail')" class="w-full bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600 transition">Insert Tail</button>
+                            <button onclick="performOperation('insertAt')" class="w-full bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600 transition">Insert At</button>
+                            <button onclick="performOperation('deleteHead')" class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition">Delete Head</button>
+                            <button onclick="performOperation('deleteTail')" class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition">Delete Tail</button>
+                            <button onclick="performOperation('deleteAt')" class="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition">Delete At</button>
+                            <button onclick="performOperation('search')" class="w-full bg-amber-500 text-white py-2 px-4 rounded-md hover:bg-amber-600 transition">Search</button>
+                            <button onclick="performOperation('reverse')" class="w-full bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 transition">Reverse</button>
+                        </div>
+                        <button onclick="performOperation('reset')" class="w-full bg-slate-500 text-white py-2 px-4 rounded-md hover:bg-slate-600 transition mt-2">Reset List</button>
+                    </div>
+                    <!-- Canvas -->
+                    <div class="md:col-span-2 bg-slate-100 rounded-lg min-h-[300px] flex items-center justify-center">
+                        <canvas id="linkedListCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fundamentals Section -->
+        <section id="fundamentals" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-4 text-slate-900">Fundamentals</h2>
+            <p class="mb-8 text-slate-600">This section covers the core concepts of linked lists, from the basic building blocks to the three primary types: Singly, Doubly, and Circular. Understanding these fundamentals is essential before moving on to more complex applications.</p>
+
+            <div class="space-y-8">
+                <!-- What is a Linked List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">What is a Linked List?</h3>
+                    <p class="mb-4">A linked list is a linear data structure where elements are not stored at contiguous memory locations. Instead, the elements, called **nodes**, are linked using pointers. Each node consists of two parts: the **data** and a **pointer** (or reference) to the next node. The entry point is the **HEAD**, and the last node points to `NULL`.</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-cpp">// The basic building block: a Node in C++
+struct Node {
+    int data;       // The data stored in the node
+    Node* next;     // Pointer to the next node in the list
+
+    // Constructor to initialize a new node
+    Node(int val) : data(val), next(nullptr) {}
+};</code></pre>
+                    </div>
+                </div>
+
+                <!-- Singly Linked List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">Singly Linked List (SLL)</h3>
+                    <p class="mb-4">The simplest type, where each node points only to the next node. Traversal is unidirectional (forward only). We'll focus on key operations like insertion and deletion.</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-cpp">// SLL Operation: Insert at the beginning (O(1))
+void insertAtHead(Node* &head, int val) {
+    Node* newNode = new Node(val);
+    newNode->next = head;
+    head = newNode;
+}
+
+// SLL Operation: Delete a node by value (O(n))
+void deleteNode(Node* &head, int val) {
+    if (head == nullptr) return;
+    if (head->data == val) {
+        Node* toDelete = head;
+        head = head->next;
+        delete toDelete;
+        return;
+    }
+    Node* temp = head;
+    while (temp->next != nullptr && temp->next->data != val) {
+        temp = temp->next;
+    }
+    if (temp->next != nullptr) {
+        Node* toDelete = temp->next;
+        temp->next = temp->next->next;
+        delete toDelete;
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Doubly Linked List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">Doubly Linked List (DLL)</h3>
+                    <p class="mb-4">Each node has two pointers: `next` and `prev`, allowing for bidirectional traversal. This makes some operations, like deleting a specific node (if you have a pointer to it) or reversing the list, more efficient.</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-cpp">// DLL Node Structure
+struct DNode {
+    int data;
+    DNode *next, *prev;
+    DNode(int val) : data(val), next(nullptr), prev(nullptr) {}
+};
+
+// DLL Operation: Reverse the list (O(n))
+void reverse(DNode* &head) {
+    if (head == nullptr) return;
+    DNode *temp = nullptr, *current = head;
+    while (current != nullptr) {
+        temp = current->prev;
+        current->prev = current->next;
+        current->next = temp;
+        head = current;
+        current = current->prev;
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Circular Linked List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">Circular Linked List</h3>
+                    <p class="mb-4">A variation where the last node's `next` pointer points back to the head node instead of `NULL`, forming a circle. This is useful for applications that need to loop, like a music playlist or a round-robin scheduler.</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-cpp">// Circular SLL: Display the list (O(n))
+// Assumes a 'tail' pointer is maintained for efficiency
+void displayCircular(Node* tail) {
+    if (tail == nullptr) return;
+    Node* head = tail->next;
+    Node* temp = head;
+    do {
+        std::cout << temp->data << " -> ";ff
+        temp = temp->next;
+    } while (temp != head);
+    std::cout << "(head)" << std::endl;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Applications Section -->
+        <section id="applications" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-4 text-slate-900">Real-World Applications</h2>
+            <p class="mb-8 text-slate-600">Linked lists are not just a theoretical concept; they are the backbone of many features and systems we use every day. This section explores some practical applications, showing how different types of linked lists are used to solve real-world problems.</p>
+
+            <div class="space-y-8">
+                <!-- Adjacency List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">Graph Representation: Adjacency List</h3>
+                    <p class="mb-4">For sparse graphs (graphs with few edges), representing connections using an array of linked lists is highly memory-efficient. Each index in the array corresponds to a vertex, and the linked list at that index stores all adjacent vertices. This is fundamental to social networks and GPS navigation.</p>
+                </div>
+
+                <!-- LRU Cache -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">LRU Cache</h3>
+                    <p class="mb-4">A Least Recently Used (LRU) cache is a high-performance system for evicting old data. It masterfully combines a **Doubly Linked List** to maintain the order of item usage (most recent at the head, least recent at the tail) with a **Hash Map** for O(1) lookup of any item. This is critical for web browsers, databases, and operating systems.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Section -->
+        <section id="advanced" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-4 text-slate-900">Advanced Concepts</h2>
+            <p class="mb-8 text-slate-600">Beyond the basics, specialized linked lists have been designed for specific high-performance scenarios. This section provides an overview of these advanced structures, including those optimized for speed, memory, and concurrent environments.</p>
+
+            <div class="space-y-8">
+                <!-- Skip List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">Skip List</h3>
+                    <p class="mb-4">A probabilistic data structure that adds multiple layers of pointers to a sorted linked list, creating "express lanes" for traversal. This allows search, insertion, and deletion operations to be performed in **O(log n)** average time, making it a powerful alternative to balanced trees, especially in concurrent systems like Redis.</p>
+                </div>
+
+                <!-- Self-Organizing List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">Self-Organizing List</h3>
+                    <p class="mb-4">This type of list dynamically reorders its elements based on access patterns. Using heuristics like **Move-to-Front (MTF)**, frequently accessed items are kept near the head of the list, optimizing performance for subsequent searches. This principle is used in caching and compiler symbol tables.</p>
+                </div>
+                <!-- Thread-Safe List -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-2xl font-semibold mb-2">Thread-Safe Linked List</h3>
+                    <p class="mb-4">In multi-threaded applications, standard linked lists are unsafe. Thread-safe variants use mechanisms like **mutexes (locks)** or more complex **lock-free atomic operations** to prevent data corruption from concurrent access. This is essential for server job queues, operating system kernels, and high-frequency trading platforms.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Complexity Section -->
+        <section id="complexity" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold mb-4 text-slate-900">Time Complexity Analysis</h2>
+            <p class="mb-8 text-slate-600">This chart provides a visual comparison of the average time complexities for common operations on arrays and linked lists. Notice the trade-offs: arrays excel at random access, while linked lists are superior for insertions and deletions at the beginning of the structure.</p>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="chart-container">
+                    <canvas id="complexityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- Canvas Visualization Logic ---
+        const canvas = document.getElementById('linkedListCanvas');
+        const ctx = canvas.getContext('2d');
+        let list = []; // Simple array to represent the list
+        let animationState = {
+            highlightIndex: -1,
+            searchIndex: -1,
+            message: ''
+        };
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 300;
+            drawList();
+        }
+
+        function drawList() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (list.length === 0) {
+                ctx.font = '16px Inter';
+                ctx.fillStyle = '#64748b';
+                ctx.textAlign = 'center';
+                ctx.fillText('List is empty. Add a node to begin.', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            const nodeWidth = 50;
+            const nodeHeight = 40;
+            const gap = 40;
+            const totalWidth = list.length * nodeWidth + (list.length - 1) * gap;
+            let startX = (canvas.width - totalWidth) / 2;
+            const startY = canvas.height / 2 - nodeHeight / 2;
+
+            // Draw nodes and pointers
+            list.forEach((node, i) => {
+                const x = startX + i * (nodeWidth + gap);
+
+                // Highlight logic
+                ctx.strokeStyle = '#334155'; // slate-700
+                if (i === animationState.highlightIndex || i === animationState.searchIndex) {
+                    ctx.strokeStyle = '#dc2626'; // red-600
+                }
+                if (animationState.searchIndex !== -1 && i > animationState.searchIndex) {
+                    ctx.strokeStyle = '#64748b'; // slate-500
+                }
+
+
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, startY, nodeWidth, nodeHeight);
+
+                // Data
+                ctx.font = 'bold 16px Inter';
+                ctx.fillStyle = '#1e293b'; // slate-800
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.data, x + nodeWidth / 2, startY + nodeHeight / 2);
+
+                // Pointer
+                if (i < list.length - 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(x + nodeWidth, startY + nodeHeight / 2);
+                    ctx.lineTo(x + nodeWidth + gap, startY + nodeHeight / 2);
+                    ctx.stroke();
+                    // Arrowhead
+                    ctx.beginPath();
+                    ctx.moveTo(x + nodeWidth + gap, startY + nodeHeight / 2);
+                    ctx.lineTo(x + nodeWidth + gap - 10, startY + nodeHeight / 2 - 5);
+                    ctx.lineTo(x + nodeWidth + gap - 10, startY + nodeHeight / 2 + 5);
+                    ctx.closePath();
+                    ctx.fillStyle = '#334155';
+                    ctx.fill();
+                } else {
+                    // NULL
+                    ctx.font = '14px Inter';
+                    ctx.fillStyle = '#64748b';
+                    ctx.fillText('NULL', x + nodeWidth + gap / 2 + 10, startY + nodeHeight / 2);
+                }
+            });
+
+            // Display message
+            if (animationState.message) {
+                ctx.font = '16px Inter';
+                ctx.fillStyle = '#1e293b';
+                ctx.textAlign = 'center';
+                ctx.fillText(animationState.message, canvas.width / 2, 30);
+            }
+        }
+
+        function animateOperation(op, ...args) {
+            let i = 0;
+            animationState = {
+                highlightIndex: -1,
+                searchIndex: -1,
+                message: ''
+            };
+
+            const interval = setInterval(() => {
+                if (op === 'search') {
+                    const [targetValue] = args;
+                    animationState.searchIndex = i;
+                    if (i >= list.length || list[i].data == targetValue) {
+                        clearInterval(interval);
+                        if (i < list.length) {
+                            animationState.message = `Found ${targetValue} at index ${i}`;
+                        } else {
+                            animationState.message = `${targetValue} not found`;
+                        }
+                        drawList();
+                        setTimeout(() => {
+                            animationState = {
+                                highlightIndex: -1,
+                                searchIndex: -1,
+                                message: ''
+                            };
+                            drawList();
+                        }, 2000);
+                    }
+                } else {
+                    animationState.highlightIndex = i;
+                }
+
+                drawList();
+                i++;
+                if (i >= list.length) {
+                    if (op !== 'search') clearInterval(interval);
+                }
+            }, 300);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                animationState = {
+                    highlightIndex: -1,
+                    searchIndex: -1,
+                    message: ''
+                };
+                op(...args);
+                drawList();
+            }, (list.length + 1) * 300);
+        }
+
+        function performOperation(type) {
+            const value = parseInt(document.getElementById('nodeValue').value) || 0;
+            const position = parseInt(document.getElementById('nodePosition').value) || 0;
+            animationState = {
+                highlightIndex: -1,
+                searchIndex: -1,
+                message: ''
+            };
+
+            if (list.length >= 10 && type.startsWith('insert')) {
+                animationState.message = "List is full for this demo.";
+                drawList();
+                setTimeout(() => {
+                    animationState.message = '';
+                    drawList();
+                }, 2000);
+                return;
+            }
+
+            switch (type) {
+                case 'insertHead':
+                    list.unshift({
+                        data: value
+                    });
+                    break;
+                case 'insertTail':
+                    list.push({
+                        data: value
+                    });
+                    break;
+                case 'insertAt':
+                    list.splice(position, 0, {
+                        data: value
+                    });
+                    break;
+                case 'deleteHead':
+                    if (list.length > 0) list.shift();
+                    break;
+                case 'deleteTail':
+                    if (list.length > 0) list.pop();
+                    break;
+                case 'deleteAt':
+                    if (list.length > 0 && position < list.length) list.splice(position, 1);
+                    break;
+                case 'search':
+                    animateOperation('search', value);
+                    return; // Return to prevent immediate redraw
+                case 'reverse':
+                    list.reverse();
+                    break;
+                case 'reset':
+                    list = [];
+                    break;
+            }
+            drawList();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        document.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
+        });
+
+
+        // --- Chart.js Logic ---
+        const complexityCtx = document.getElementById('complexityChart').getContext('2d');
+        const complexityChart = new Chart(complexityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Access (by index)', 'Search (by value)', 'Insert/Delete (Head)', 'Insert/Delete (Tail)'],
+                datasets: [{
+                    label: 'Array',
+                    data: [1, 2, 2, 2], // Using a scale: 1=O(1), 2=O(n)
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)', // blue-500
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Linked List',
+                    data: [2, 2, 1, 2],
+                    backgroundColor: 'rgba(245, 158, 11, 0.5)', // amber-500
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                if (value === 1) return 'O(1)';
+                                if (value === 2) return 'O(n)';
+                                return '';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.raw;
+                                if (value === 1) label += 'O(1) - Constant Time';
+                                if (value === 2) label += 'O(n) - Linear Time';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- Utility and Navigation Logic ---
+        function copyCode(button) {
+            const pre = button.parentElement;
+            const code = pre.querySelector('code');
+            const textArea = document.createElement('textarea');
+            textArea.value = code.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 2000);
+        }
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
